@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common import TimeoutException
 # selenium라이브러리안에있는 service 임포트
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -9,10 +10,6 @@ import time
 import pyautogui #마우스, 키보드 자동제어 패키지
 import pyperclip #클립보드
 import login_info #아이디비밀번호 파일
-
-#기본세팅
-#set_id='아이디를 입력해주세요'
-#set_pwd='비밀번호를 입력해주세요'
 
 def setup_driver():
     # 웹드라이버 경로 설정
@@ -40,13 +37,22 @@ def login(driver, user_id, password):
     login_btn.click()
 
 def booking_page(driver):
-    #WebDriverWait와 expected_conditions을 사용하여 요소가 로드될 때까지 대기하는 방식
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
-        (By.CSS_SELECTOR, "#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button"))).click()
-    bookingpage_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
-    bookingpage_btn.click()
+    #팝업없을때를 위한 예외처리
+    try:
+        # WebDriverWait와 expected_conditions을 사용하여 요소가 로드될 때까지 대기하는 방식
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button"))).click()
+    except TimeoutException:
+        print("x")
+    booking_page_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
+    booking_page_btn.click()
 
 def main():
+    # 기본세팅
+    # set_id='아이디를 입력해주세요'
+    # set_pwd='비밀번호를 입력해주세요'
+    # set_departure_date="2024-12-31"
+    # set_departure_time="1시"
     # Chrome 옵션설정
     chrome_options = Options()
     chrome_options.add_experimental_option("detach", True)  # 브라우저 닫힘방지 옵션
