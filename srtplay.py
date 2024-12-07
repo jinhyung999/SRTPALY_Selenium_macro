@@ -3,6 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options  # 옵션 설정 (필요시)
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import pyautogui #마우스, 키보드 자동제어 패키지
 import pyperclip #클립보드
@@ -12,19 +14,51 @@ import login_info #아이디비밀번호 파일
 #set_id='아이디를 입력해주세요'
 #set_pwd='비밀번호를 입력해주세요'
 
-# 웹드라이버 경로 설정
-#driver_path = r"C:\Users\ADMIN\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#노트북
-driver_path = r"C:\Users\User\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#PC
+def setup_driver():
+    # 웹드라이버 경로 설정
+    # driver_path = r"C:\Users\ADMIN\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#노트북
+    driver_path = r"C:\Users\User\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"  # PC
+    # Service 객체로 WebDriver 설정
+    service = Service(executable_path=driver_path)
+    # driver를 chrome브라우저로 설정
+    driver = webdriver.Chrome(service=service)
+    return driver
 
-#Chrome 옵션설정
-chrome_options = Options()
-chrome_options.add_experimental_option("detach", True)#브라우저 닫힘방지 옵션
-# Service 객체로 WebDriver 설정
-service = Service(executable_path=driver_path)
+def login(driver, user_id, password):
+    driver.get("https://srtplay.com/user/idCheck")
+    id_element = driver.find_element(By.CSS_SELECTOR, "#input-email")
+    id_element.send_keys(user_id)
+    next_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span")
+    next_btn.click()
 
-# driver를 chrome브라우저로 설정
-driver = webdriver.Chrome(service=service)
+    password_element = driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.form-type-wrap > div:nth-child(2) > span > span")
+    password_element.click()
+    time.sleep(2)
+    pyperclip.copy(password)
+    pyautogui.hotkey("ctrl", "v")
+    login_btn = driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.end-content > div > button")
+    login_btn.click()
 
+def booking_page(driver):
+    #WebDriverWait와 expected_conditions을 사용하여 요소가 로드될 때까지 대기하는 방식
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button"))).click()
+    bookingpage_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
+    bookingpage_btn.click()
+
+def main():
+    # Chrome 옵션설정
+    chrome_options = Options()
+    chrome_options.add_experimental_option("detach", True)  # 브라우저 닫힘방지 옵션
+    driver = setup_driver()
+    login(driver, login_info.set_id, login_info.set_pwd)
+    booking_page(driver)
+
+if __name__ == "__main__":
+    main()
+
+
+"""
 # 1. driver.get()메서드 이용하여 srtplay login페이지 열기
 url = "https://srtplay.com/user/idCheck"
 driver.get(url)
@@ -47,6 +81,7 @@ pyautogui.hotkey("ctrl", "v")
 btn2 = driver.find_element(By.CSS_SELECTOR,"#loginForm > div > div.end-content > div > button")#btn2 로그인버튼
 btn2.click()
 time.sleep(2)
+
 #팝업창 클릭
 btn3 = driver.find_element(By.CSS_SELECTOR,"#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button")
 btn3.click()
@@ -54,7 +89,4 @@ time.sleep(2)
 #승차권 예매 페이지(btn4) 클릭
 btn4 = driver.find_element(By.CSS_SELECTOR,"body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
 btn4.click()
-time.sleep(2)
-
-time.sleep(5)
-driver.quit()
+"""
