@@ -27,18 +27,19 @@ def setup_driver():
 
 def login(driver, user_id, password):
     driver.get("https://srtplay.com/user/idCheck")
-    id_element = driver.find_element(By.CSS_SELECTOR, "#input-email")
-    id_element.send_keys(user_id)
-    next_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span")
-    next_btn.click()
+    # id_element = driver.find_element(By.CSS_SELECTOR, "#input-email")
+    # id_element.send_keys(user_id) 두줄짜리를 한줄로 요약
+    # 아디디 입력란에 입력
+    driver.find_element(By.CSS_SELECTOR, "#input-email").send_keys(user_id)
+    # next_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span")
+    # next_btn.click() 두줄짜리 코드 한줄로 요약
+    #다음버튼 클릭
+    driver.find_element(By.CSS_SELECTOR,"body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span").click()
+    driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.form-type-wrap > div:nth-child(2) > span > span").click()
+    #비밀번호 입력란에 입력
+    driver.find_element(By.CSS_SELECTOR, "#input-pw").send_keys(password)  # 실제 비밀번호 필드 CSS 선택자
+    driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.end-content > div > button").click()
 
-    password_element = driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.form-type-wrap > div:nth-child(2) > span > span")
-    password_element.click()
-    #time.sleep(2)
-    password_element = driver.find_element(By.CSS_SELECTOR, "#input-pw")  # 실제 비밀번호 필드 CSS 선택자
-    password_element.send_keys(password)
-    login_btn = driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.end-content > div > button")
-    login_btn.click()
 
 def booking_page(driver):
     #팝업없을때를 위한 예외처리
@@ -48,8 +49,8 @@ def booking_page(driver):
             (By.CSS_SELECTOR, "#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button"))).click()
     except TimeoutException:
         print("x")
-    booking_page_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
-    booking_page_btn.click()
+    #팝업버튼 요소찾고 클릭
+    driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a").click()
 
 def station_page(driver, departure_station, arrival_station):
     #출발역 검색후 선택완료 누르기
