@@ -108,7 +108,8 @@ def find_booking_elements(driver, deadline_time):
 
         # 버튼 찾기 (class="btn btn-normal disabled"나 class="btn btn-sale disabled"이 아닌 버튼 찾기)
         buttons = train_schedule.find_elements(By.CSS_SELECTOR, "a.btn")
-        for button in buttons:
+
+        for button in reversed(buttons):
             # 비활성화된 버튼은 건너뛰기
             if "disabled" in button.get_attribute("class"):
                 continue
@@ -119,6 +120,7 @@ def find_booking_elements(driver, deadline_time):
                 find_flag = True
                 break
 
+
     if find_flag:
         print("버튼 클릭 완료")
     else:
@@ -128,6 +130,7 @@ def find_booking_elements(driver, deadline_time):
 def booking_loop(driver, set_time):
     while True:
         try:
+            #li#trainScheduleListLi 요소 읽어올수있을때 까지 기다리기
             WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "li#trainScheduleListLi")))
             clicked = find_booking_elements(driver, set_time)
             if clicked:
@@ -136,23 +139,44 @@ def booking_loop(driver, set_time):
             else:
                 print("예매 가능한 버튼이 없습니다. 페이지를 새로고침합니다.")
                 driver.refresh()
-                time.sleep(2)
+                time.sleep(1)
                 continue
 
         except Exception as e:
             print(f"오류 발생: {e}")
             break
 
+def done_booking(driver):
+    # 'sale-ticket'을 가진 div 요소 찾기
+    sale_ticket_div = driver.find_element(By.CSS_SELECTOR, "div.fixed-footer-wrap[data-id='sale-ticket']")
+    # 'normal-ticket'을 가진 div 요소 찾기
+    normal_ticket_div = driver.find_element(By.CSS_SELECTOR, "div.fixed-footer-wrap[data-id='normal-ticket']")
+
+    try:
+        sale_button = sale_ticket_div.find_element(By.LINK_TEXT, "티플승차권 예약하기")
+        sale_button.click()
+
+    except Exception as e:
+        # '일반승차권 예약하기' 버튼 클릭 (normal-ticket div)
+        normal_button = normal_ticket_div.find_element(By.LINK_TEXT, "일반승차권 예약하기")
+        normal_button.click()
+    #좌석 자동배정버튼 찾고 클릭가능해지면 클릭
+    buy_seat = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[text()='좌석 자동배정']"))
+    )
+    buy_seat.click()
 
 def main():
-    # 기본세팅
-    # set_id='아이디를 입력해주세요'
-    # set_pwd='비밀번호를 입력해주세요'
-    set_departure_station = "대전"
-    set_arrival_station = "수서"
-    set_departure_date = "2024-12-14"
-    set_departure_time = "22"
-    set_deadline_time = "22:30"
+    # ------------- 기본세팅-----------------------
+    # set_id='아이디를 입력해주세요'      #아이디
+    # set_pwd='비밀번호를 입력해주세요'   #비밀번호
+    set_departure_station = "대전"    #출발역
+    set_arrival_station = "수서"      #도착역
+    set_departure_date = "2024-12-14"#출발날짜
+    set_departure_time = "23"        #기차출발시간
+    set_deadline_time = "23:59"      # 예약 가능한 마지막 출발 시간
+    # ------------- 기본세팅-----------------------
+
     if ':' not in set_deadline_time:  # 만약 ':'이 없다면
         if len(set_deadline_time) == 1:  # 한 자릿수 숫자인 경우
             set_deadline_time = "0" + set_deadline_time + ":00"  # 앞에 0을 추가하고 :00을 붙임
@@ -166,13 +190,12 @@ def main():
     booking_page(driver)
     station_page(driver, set_departure_station, set_arrival_station)
     date_page(driver, set_departure_date, set_departure_time)
-    #자바스크립트로 조회하기버튼 누르기
-    driver.execute_script("document.getElementById('ticketSearchBtn').click();")
+    driver.execute_script("document.getElementById('ticketSearchBtn').click();")#자바스크립트로 조회하기버튼 누르기
     booking_loop(driver, set_deadline_time)
+    done_booking(driver)
+
 
     print("good")
-    time.sleep(60)
-    driver.quit()
 
 if __name__ == "__main__":
     main()
