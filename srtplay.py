@@ -10,6 +10,7 @@ import time
 #import pyautogui #마우스, 키보드 자동제어 패키지
 #import pyperclip #클립보드
 import login_info #아이디비밀번호 파일
+from datetime import datetime
 
 def setup_driver():
     # 웹드라이버 경로 설정
@@ -39,7 +40,6 @@ def login(driver, user_id, password):
     #비밀번호 입력란에 입력
     driver.find_element(By.CSS_SELECTOR, "#input-pw").send_keys(password)  # 실제 비밀번호 필드 CSS 선택자
     driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.end-content > div > button").click()
-
 
 def booking_page(driver):
     #팝업없을때를 위한 예외처리
@@ -87,14 +87,78 @@ def date_page(driver, departure_date, departure_time):
     calendar_select_button = driver.find_element(By.CSS_SELECTOR, "#calendarDiv > div > div.pop-footer.bg-light-gray > div.btn-wrap > button.btn-type1.st1")
     calendar_select_button.click()
 
+def find_booking_elements(driver, deadline_time):
+    # <li> 요소들을 찾기
+    train_schedule_elements = driver.find_elements(By.CSS_SELECTOR, "li#trainScheduleListLi")
+    # for문 종료를 위한 find_flag변수
+    find_flag = False
+    # 요소 순차적으로 확인
+    for train_schedule in train_schedule_elements:
+        # 버튼 클릭되면 flag=True가 되면서 for루프 종료
+        if find_flag == True:
+            break
+        # 시간 확인 (start 클래스의 시간 추출)
+        start_time_str = train_schedule.find_element(By.CSS_SELECTOR, ".start").text
+        start_time = datetime.strptime(start_time_str, "%H:%M")
+
+        # 시간 비교 (set_deadline_time보다 앞인지 확인)
+        if start_time >= deadline_time:
+            print("지정시간 초과 재탐색")
+            break  # 다음 요소로 진행
+
+        # 버튼 찾기 (class="btn btn-normal disabled"나 class="btn btn-sale disabled"이 아닌 버튼 찾기)
+        buttons = train_schedule.find_elements(By.CSS_SELECTOR, "a.btn")
+        for button in buttons:
+            # 비활성화된 버튼은 건너뛰기
+            if "disabled" in button.get_attribute("class"):
+                continue
+            # 버튼 클릭
+            href = button.get_attribute("href")
+            if href:
+                button.click()
+                find_flag = True
+                break
+
+    if find_flag:
+        print("버튼 클릭 완료")
+    else:
+        print("버튼을 찾지 못했습니다.")
+    return find_flag
+
+def booking_loop(driver, set_time):
+    while True:
+        try:
+            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "li#trainScheduleListLi")))
+            clicked = find_booking_elements(driver, set_time)
+            if clicked:
+                print("예매 성공!")
+                break
+            else:
+                print("예매 가능한 버튼이 없습니다. 페이지를 새로고침합니다.")
+                driver.refresh()
+                time.sleep(2)
+                continue
+
+        except Exception as e:
+            print(f"오류 발생: {e}")
+            break
+
+
 def main():
     # 기본세팅
     # set_id='아이디를 입력해주세요'
     # set_pwd='비밀번호를 입력해주세요'
     set_departure_station = "대전"
     set_arrival_station = "수서"
-    set_departure_date = "2024-12-11"
-    set_departure_time = "16"
+    set_departure_date = "2024-12-14"
+    set_departure_time = "22"
+    set_deadline_time = "22:30"
+    if ':' not in set_deadline_time:  # 만약 ':'이 없다면
+        if len(set_deadline_time) == 1:  # 한 자릿수 숫자인 경우
+            set_deadline_time = "0" + set_deadline_time + ":00"  # 앞에 0을 추가하고 :00을 붙임
+        else:
+            set_deadline_time += ":00"
+    set_deadline_time = datetime.strptime(set_deadline_time, "%H:%M")
 
     driver = setup_driver()
     #login(driver, set_id, set_pwd)
@@ -104,41 +168,34 @@ def main():
     date_page(driver, set_departure_date, set_departure_time)
     #자바스크립트로 조회하기버튼 누르기
     driver.execute_script("document.getElementById('ticketSearchBtn').click();")
+    booking_loop(driver, set_deadline_time)
 
+    print("good")
+    time.sleep(60)
+    driver.quit()
 
 if __name__ == "__main__":
     main()
 
 
-"""
-# 1. driver.get()메서드 이용하여 srtplay login페이지 열기
-url = "https://srtplay.com/user/idCheck"
-driver.get(url)
 
-#아이디 입력창찾기 및 입력
-id = driver.find_element(By.CSS_SELECTOR,"#input-email")
-id.click()
-id.send_keys(login_info.set_id)
-btn1 = driver.find_element(By.CSS_SELECTOR,"body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span")#btn1 다음버튼
-btn1.click()
-
-#비밀번호 입력창찾기 및 입력
-pwd = driver.find_element(By.CSS_SELECTOR,"#loginForm > div > div.form-type-wrap > div:nth-child(2) > span > span")
-pwd.click()
-time.sleep(2)#클릭이 잘될때까지 대기
-#이유가 왜인지는 모르겠지만 패스워드를 바로 때려넣으면 입력이안됨 짐작으로는 너무빨리 작성하여서 그런것?
-#해결책으로 패스워드를 클립보드에 카피하여 붙여넣기... 성공
-pyperclip.copy(login_info.set_pwd)
-pyautogui.hotkey("ctrl", "v")
-btn2 = driver.find_element(By.CSS_SELECTOR,"#loginForm > div > div.end-content > div > button")#btn2 로그인버튼
-btn2.click()
-time.sleep(2)
-
-#팝업창 클릭
-btn3 = driver.find_element(By.CSS_SELECTOR,"#popup-noti-0 > div.pop-wrap > div > div.pop-footer > div > div > button")
-btn3.click()
-time.sleep(2)
-#승차권 예매 페이지(btn4) 클릭
-btn4 = driver.find_element(By.CSS_SELECTOR,"body > div.outer-wrap > div > div.content > div > div.list-category.st3 > ul > li:nth-child(1) > a")
-btn4.click()
-"""
+# def find_and_click_button(driver, start_time, end_time):
+#     script = """
+#     function findAndClickButton(startTime, endTime) {
+#         const buttons = Array.from(document.querySelectorAll('button[data-id]'));
+#         for (const button of buttons) {
+#             const timeAttr = button.getAttribute('data-id');
+#             if (!timeAttr) continue;
+#
+#             const time = parseInt(timeAttr.replace('time-', ''), 10);
+#             if (time >= startTime && time <= endTime && !button.disabled) {
+#                 button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+#                 button.click();
+#                 return true; // 버튼을 클릭하면 true 반환
+#             }
+#         }
+#         return false; // 클릭 가능한 버튼이 없으면 false 반환
+#     }
+#     return findAndClickButton(arguments[0], arguments[1]);
+#     """
+#     return driver.execute_script(script, start_time, end_time)
