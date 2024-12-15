@@ -9,13 +9,13 @@ from selenium.webdriver.chrome.options import Options  # 옵션 설정 (필요�
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-import login_info #아이디비밀번호 파일
+import info #아이디비밀번호 파일
 
 
 def setup_driver():
     # 웹드라이버 경로 설정
     # driver_path = r"C:\Users\ADMIN\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#노트북
-    driver_path = r"C:\Users\User\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"  # PC
+    driver_path = info.driver_path  # PC
     # Service 객체로 WebDriver 설정
     service = Service(executable_path=driver_path)
     #브라우저 닫힘방지 옵션
@@ -177,29 +177,18 @@ def handle_alert(driver):
         return False
 
 def main():
-    # ------------- 기본세팅-----------------------
-    set_id='아이디를 입력해주세요'      #아이디
-    set_pwd='비밀번호를 입력해주세요'   #비밀번호
-    set_departure_station = "대전"    #출발역
-    set_arrival_station = "수서"      #도착역
-    set_departure_date = "2024-12-15"#출발날짜
-    set_departure_time = "21:40"        #기차출발시간
-    set_deadline_time = "23"      # 예약 가능한 마지막 출발 시간
-    # ------------- 기본세팅-----------------------
-
-    if ':' not in set_deadline_time:  # 만약 ':'이 없다면
-        if len(set_deadline_time) == 1:  # 한 자릿수 숫자인 경우
-            set_deadline_time = "0" + set_deadline_time + ":00"  # 앞에 0을 추가하고 :00을 붙임
+    if ':' not in info.set_deadline_time:  # 만약 ':'이 없다면
+        if len(info.set_deadline_time) == 1:  # 한 자릿수 숫자인 경우
+            set_deadline_time = "0" + info.set_deadline_time + ":00"  # 앞에 0을 추가하고 :00을 붙임
         else:
-            set_deadline_time += ":00"
-    set_deadline_time = datetime.strptime(set_deadline_time, "%H:%M")
+            info.set_deadline_time += ":00"
+    set_deadline_time = datetime.strptime(info.set_deadline_time, "%H:%M")
 
     driver = setup_driver()
-    # login(driver, set_id, set_pwd)
-    login(driver, login_info.set_id, login_info.set_pwd)
+    login(driver, info.set_id, info.set_pwd)
     booking_page(driver)
-    station_page(driver, set_departure_station, set_arrival_station)
-    date_page(driver, set_departure_date, set_departure_time)
+    station_page(driver, info.set_departure_station, info.set_arrival_station)
+    date_page(driver, info.set_departure_date, info.set_departure_time)
     driver.execute_script("document.getElementById('ticketSearchBtn').click();")#자바스크립트로 조회하기버튼 누르기
     booking_loop(driver, set_deadline_time)
     done_booking(driver)
@@ -212,8 +201,8 @@ def main():
                 time.sleep(1)  # 1초 대기 후 확인
 
             # 팝업이 나왔으면 station_page부터 다시 진행
-            station_page(driver, set_departure_station, set_arrival_station)
-            date_page(driver, set_departure_date, set_departure_time)
+            station_page(driver, info.set_departure_station, info.set_arrival_station)
+            date_page(driver, info.set_departure_date, info.set_departure_time)
             driver.execute_script("document.getElementById('ticketSearchBtn').click();")  # 자바스크립트로 조회하기 버튼 누르기
             booking_loop(driver, set_deadline_time)
             done_booking(driver)
