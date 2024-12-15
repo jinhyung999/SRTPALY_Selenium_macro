@@ -1,4 +1,6 @@
+from datetime import datetime
 from selenium import webdriver
+from selenium.webdriver.common.alert import Alert#팝업창 제어
 from selenium.common import TimeoutException
 # selenium라이브러리안에있는 service 임포트
 from selenium.webdriver.chrome.service import Service
@@ -7,10 +9,8 @@ from selenium.webdriver.chrome.options import Options  # 옵션 설정 (필요�
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-#import pyautogui #마우스, 키보드 자동제어 패키지
-#import pyperclip #클립보드
 import login_info #아이디비밀번호 파일
-from datetime import datetime
+
 
 def setup_driver():
     # 웹드라이버 경로 설정
@@ -83,7 +83,7 @@ def date_page(driver, departure_date, departure_time):
     time.sleep(1)
     #자바스크립트를 사용하여 캘린더페이지 출발날짜,시간 적용하기
     driver.execute_script(f"document.querySelector('div[data-id=\"{departure_date}\"] button').click();")
-    driver.execute_script(f"document.querySelector('button[data-id=\"time-{departure_time}\"]').click();")
+    driver.execute_script(f"document.querySelector('button[data-id=\"time-{departure_time[:2]}\"]').click();")
     calendar_select_button = driver.find_element(By.CSS_SELECTOR, "#calendarDiv > div > div.pop-footer.bg-light-gray > div.btn-wrap > button.btn-type1.st1")
     calendar_select_button.click()
 
@@ -99,6 +99,7 @@ def find_booking_elements(driver, deadline_time):
             break
         # 시간 확인 (start 클래스의 시간 추출)
         start_time_str = train_schedule.find_element(By.CSS_SELECTOR, ".start").text
+        # 시간 비교를위해 datetime 객체로 형변환
         start_time = datetime.strptime(start_time_str, "%H:%M")
 
         # 시간 비교 (set_deadline_time보다 앞인지 확인)
@@ -108,23 +109,18 @@ def find_booking_elements(driver, deadline_time):
 
         # 버튼 찾기 (class="btn btn-normal disabled"나 class="btn btn-sale disabled"이 아닌 버튼 찾기)
         buttons = train_schedule.find_elements(By.CSS_SELECTOR, "a.btn")
-
+        # 버튼배열이 ['일반티켓버튼', '할인티켓버튼'] 이렇게 저장되므로 할인티켓을 먼저예매하기위해 reversed()사용
         for button in reversed(buttons):
             # 비활성화된 버튼은 건너뛰기
             if "disabled" in button.get_attribute("class"):
                 continue
-            # 버튼 클릭
+            # href의 속성값 받아오기
             href = button.get_attribute("href")
             if href:
                 button.click()
                 find_flag = True
                 break
 
-
-    if find_flag:
-        print("버튼 클릭 완료")
-    else:
-        print("버튼을 찾지 못했습니다.")
     return find_flag
 
 def booking_loop(driver, set_time):
@@ -137,22 +133,24 @@ def booking_loop(driver, set_time):
                 print("예매 성공!")
                 break
             else:
-                print("예매 가능한 버튼이 없습니다. 페이지를 새로고침합니다.")
+                # print("예매 가능한 버튼이 없습니다. 페이지를 새로고침합니다.")
+                # 새로고침
                 driver.refresh()
+                # 서버에 과부화를 주지않기위해 타임슬립
                 time.sleep(1)
                 continue
 
         except Exception as e:
-            print(f"오류 발생: {e}")
+            print(e)
             break
 
 def done_booking(driver):
-    # 'sale-ticket'을 가진 div 요소 찾기
+    # 'sale-ticket'을 가진 div 요소와 'normal-ticket'을 가진 div 요소 찾기
     sale_ticket_div = driver.find_element(By.CSS_SELECTOR, "div.fixed-footer-wrap[data-id='sale-ticket']")
-    # 'normal-ticket'을 가진 div 요소 찾기
     normal_ticket_div = driver.find_element(By.CSS_SELECTOR, "div.fixed-footer-wrap[data-id='normal-ticket']")
-
+    #우선적으로 할인티켓을 먼저 클릭시도 만약 없으면 일반티켓 클릭
     try:
+        # '티플승차권 예약하기' 버튼 클릭
         sale_button = sale_ticket_div.find_element(By.LINK_TEXT, "티플승차권 예약하기")
         sale_button.click()
 
@@ -160,21 +158,33 @@ def done_booking(driver):
         # '일반승차권 예약하기' 버튼 클릭 (normal-ticket div)
         normal_button = normal_ticket_div.find_element(By.LINK_TEXT, "일반승차권 예약하기")
         normal_button.click()
-    #좌석 자동배정버튼 찾고 클릭가능해지면 클릭
+    # 좌석 자동배정버튼 찾고 클릭가능해지면 클릭
     buy_seat = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.XPATH, "//button[text()='좌석 자동배정']"))
     )
     buy_seat.click()
 
+
+def handle_alert(driver):
+    try:
+        # alert() 팝업이 나타날 경우 처리
+        alert = Alert(driver)
+        alert.accept()  # "확인" 버튼 클릭
+        print("Alert 팝업이 닫혔습니다.")
+        return True
+    except Exception as e:
+        # alert() 팝업이 없으면 예외 발생, None 반환
+        return False
+
 def main():
     # ------------- 기본세팅-----------------------
-    # set_id='아이디를 입력해주세요'      #아이디
-    # set_pwd='비밀번호를 입력해주세요'   #비밀번호
+    set_id='아이디를 입력해주세요'      #아이디
+    set_pwd='비밀번호를 입력해주세요'   #비밀번호
     set_departure_station = "대전"    #출발역
     set_arrival_station = "수서"      #도착역
-    set_departure_date = "2024-12-14"#출발날짜
-    set_departure_time = "23"        #기차출발시간
-    set_deadline_time = "23:59"      # 예약 가능한 마지막 출발 시간
+    set_departure_date = "2024-12-15"#출발날짜
+    set_departure_time = "21:40"        #기차출발시간
+    set_deadline_time = "23"      # 예약 가능한 마지막 출발 시간
     # ------------- 기본세팅-----------------------
 
     if ':' not in set_deadline_time:  # 만약 ':'이 없다면
@@ -185,7 +195,7 @@ def main():
     set_deadline_time = datetime.strptime(set_deadline_time, "%H:%M")
 
     driver = setup_driver()
-    #login(driver, set_id, set_pwd)
+    # login(driver, set_id, set_pwd)
     login(driver, login_info.set_id, login_info.set_pwd)
     booking_page(driver)
     station_page(driver, set_departure_station, set_arrival_station)
@@ -193,32 +203,22 @@ def main():
     driver.execute_script("document.getElementById('ticketSearchBtn').click();")#자바스크립트로 조회하기버튼 누르기
     booking_loop(driver, set_deadline_time)
     done_booking(driver)
+    # 10초 동안 팝업이 나타나는지 확인
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        if handle_alert(driver):  # 팝업이 있으면 처리
+            # 팝업이 닫힌 후, https://srtplay.com/ticket/reservation URL로 돌아올 때까지 대기
+            while driver.current_url != "https://srtplay.com/ticket/reservation":
+                time.sleep(1)  # 1초 대기 후 확인
 
-
-    print("good")
+            # 팝업이 나왔으면 station_page부터 다시 진행
+            station_page(driver, set_departure_station, set_arrival_station)
+            date_page(driver, set_departure_date, set_departure_time)
+            driver.execute_script("document.getElementById('ticketSearchBtn').click();")  # 자바스크립트로 조회하기 버튼 누르기
+            booking_loop(driver, set_deadline_time)
+            done_booking(driver)
+        else:
+            break
 
 if __name__ == "__main__":
     main()
-
-
-
-# def find_and_click_button(driver, start_time, end_time):
-#     script = """
-#     function findAndClickButton(startTime, endTime) {
-#         const buttons = Array.from(document.querySelectorAll('button[data-id]'));
-#         for (const button of buttons) {
-#             const timeAttr = button.getAttribute('data-id');
-#             if (!timeAttr) continue;
-#
-#             const time = parseInt(timeAttr.replace('time-', ''), 10);
-#             if (time >= startTime && time <= endTime && !button.disabled) {
-#                 button.scrollIntoView({ behavior: 'smooth', block: 'center' });
-#                 button.click();
-#                 return true; // 버튼을 클릭하면 true 반환
-#             }
-#         }
-#         return false; // 클릭 가능한 버튼이 없으면 false 반환
-#     }
-#     return findAndClickButton(arguments[0], arguments[1]);
-#     """
-#     return driver.execute_script(script, start_time, end_time)
