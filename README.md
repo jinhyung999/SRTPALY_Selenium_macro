@@ -4,6 +4,10 @@ This is an open-source automation SRT macro program.
 
 It uses Python to automatically control the SRT reservation site, srtplay  
 파이썬을 이용하여  SRT예매사이트 srtplay를 자동 제어합니다.  
+
+<p style="background-color: yellow; font-size: 20px; font-weight: bold;">상업적 목적으로 이용 불가</p>  
+<p style="background-color: yellow; font-size: 20px; font-weight: bold;">Commercial use is prohibited</p>  
+
 ***
 
 # How To Run
