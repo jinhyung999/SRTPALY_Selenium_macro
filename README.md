@@ -6,7 +6,12 @@ It uses Python to automatically control the SRT reservation site, srtplay
 파이썬을 이용하여  SRT예매사이트 srtplay를 자동 제어합니다.  
 
 **Commercial use is prohibited**  
-**상업적 목적으로 이용 불가**  
+**상업적 목적으로 이용 불가**
+### License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).  
+You may use, share, and adapt the code, but only for non-commercial purposes. Attribution is required.  
+For full license details, see the [LICENSE](LICENSE) file.
 
 ***
 
