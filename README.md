@@ -4,8 +4,9 @@ This is an open-source automation SRT macro program.
 
 It uses Python to automatically control the SRT reservation site, srtplay  
 파이썬을 이용하여  SRT예매사이트 srtplay를 자동 제어합니다.  
+***
 
-## How To Run
+# How To Run
 Python 3.x: Python must be installed. If it's not installed, please download and install it from the official Python website.  
 Chromedriver: You need to download and install the Chrome WebDriver for Selenium, matching your system's version. You can download it from the Chromedriver download page.  
 Install required libraries: Use the command below to install the necessary libraries.  
@@ -15,13 +16,16 @@ Chromedriver: Selenium에서 사용할 Chrome 웹드라이버를 다운로드하
 필요한 라이브러리 설치: 아래 명령어로 필요한 라이브러리를 설치하세요.  
 
  ```python
-ex) pip install selenium requests
+pip install selenium requests
 ```
 
 Please download the info.py from the repository and fill in the required values.
 If you do not need the feature to send messages via KakaoTalk, you do not need to provide the kakao_id, kakao_pw, and rest_api_key values.  
 레포지터리에 있는 info.py를 다운받고 필요한 값들을 넣어주세요.  
-카카오톡으로 메시지 보내기 기능이 필요하지 않으시면 kakao_id, kakao_pw, rest_api_key 값을 작성하지 않으셔도 됩니다.  
+카카오톡으로 메시지 보내기 기능이 필요하지 않으시면 kakao_id, kakao_pw, rest_api_key 값을 작성하지 않으셔도 됩니다.    
+
+If you have completed the setup, please run srtplay.py to start the booking process! Note: Please place info.py, kakao_send.py, and srtplay.py in the same folder.  
+세팅을 다하셨다면 srtplay.py를 실행시켜주시면 예매가 시작됩니다! 주의: info.py, kakao_send.py, srtplay.py를 같은 폴더에 넣어주세요.  
 
 ### License
 
