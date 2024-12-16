@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options  # 옵션 설정 (필요시)
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from kakao_send import get_kakao_auth_code, get_access_token, send_kakao_message
 import time
 import info #아이디비밀번호 파일
 
@@ -22,8 +23,7 @@ def setup_driver():
     chrome_options = Options()
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(options=chrome_options)
-    # driver를 chrome브라우저로 설정
-    # driver = webdriver.Chrome(service=service)
+
     return driver
 
 def login(driver, user_id, password):
@@ -56,7 +56,7 @@ def station_page(driver, departure_station, arrival_station):
     #출발역 검색후 선택완료 누르기
     departure_station_button = driver.find_element(By.CSS_SELECTOR, "#station-start")
     departure_station_button.click()
-    time.sleep(1)#타임슬립을 안넣으면 자동으로 닫히 왜?일까
+    time.sleep(1)
     search_input = driver.find_element(By.CSS_SELECTOR, "#station-pos-input")
     search_input.send_keys(departure_station)
     time.sleep(1)
@@ -211,3 +211,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+    #두번째 파일 실행
+    auth_code = get_kakao_auth_code()  # 두 번째 파일에서 함수 호출
+    if auth_code:
+        access_token = get_access_token(auth_code)  # 두 번째 파일에서 함수 호출
+        if access_token:
+            send_kakao_message(access_token, "예매가 완료되었습니다!")
