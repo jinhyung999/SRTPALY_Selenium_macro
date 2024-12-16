@@ -13,8 +13,8 @@ Install required libraries: Use the command below to install the necessary libra
 Python 3.x: Python이 설치되어 있어야 합니다. 설치가 되어 있지 않다면 Python 공식 사이트에서 다운로드하고 설치해 주세요. 
 Chromedriver: Selenium에서 사용할 Chrome 웹드라이버를 다운로드하고, 본인의 시스템에 맞는 버전을 설치해야 합니다. Chromedriver 다운로드 페이지에서 다운로드할 수 있습니다.  
 필요한 라이브러리 설치: 아래 명령어로 필요한 라이브러리를 설치하세요.  
-```bash
-pip install selenium requests.txt
+
+**pip install selenium requests**
 
 Please download the info.py from the repository and fill in the required values.
 If you do not need the feature to send messages via KakaoTalk, you do not need to provide the kakao_id, kakao_pw, and rest_api_key values.  
