@@ -1,9 +1,9 @@
 # srtplay
-This is an open-source automation SRT macro program.
-오픈 소스 자동화 SRT매크로 프로그램 입니다.
+This is an open-source automation SRT macro program.  
+오픈 소스 자동화 SRT매크로 프로그램 입니다.  
 
-It uses Python to automatically control the SRT reservation site, srtplay
-파이썬을 이용하여  SRT예매사이트 srtplay를 자동 제어합니다.
+It uses Python to automatically control the SRT reservation site, srtplay  
+파이썬을 이용하여  SRT예매사이트 srtplay를 자동 제어합니다.  
 
 ## License
 
