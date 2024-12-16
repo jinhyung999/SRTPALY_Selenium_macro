@@ -1,5 +1,5 @@
 # ------------- 기본세팅-----------------------
-driver_path = r"C:\Users\User\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#크롬드라이버 경로
+driver_path = r" "               #크롬드라이버 경로
 set_id='아이디를 입력해주세요'       #아이디
 set_pwd='비밀번호를 입력해주세요'    #비밀번호
 set_departure_station = "대전"    #출발역
@@ -10,4 +10,5 @@ set_deadline_time = "23"         # 예약 가능한 마지막 출발 시간
 # 카카오 로그인 정보 입력
 kakao_id = "카카오 계정 아이디"
 kakao_pw = "카카오 계정 비밀번호"
+rest_api_key = "카카오 REST API 키"
 

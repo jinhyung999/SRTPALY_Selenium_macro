@@ -10,14 +10,13 @@ import requests
 import json
 import info
 # 카카오 인증 정보
-rest_api_key = "카카오 REST API 키"  # 카카오 REST API 키
+rest_api_key = info.rest_api_key  # 카카오 REST API 키
 redirect_uri = "https://example.com/oauth"  # 설정한 Redirect URI
 authorize_url = f"https://kauth.kakao.com/oauth/authorize?response_type=code&client_id={rest_api_key}&redirect_uri={redirect_uri}"
-service = Service(info.driver_path)  # Chromedriver 경로
+service = Service(info.driver_path)
 driver = webdriver.Chrome(service=service)
 
 def get_kakao_auth_code():
-    # 카카오 인증 페이지로 이동
     driver.get(authorize_url)
 
     driver.find_element(By.CSS_SELECTOR, "#loginId--1").send_keys(info.kakao_id)

@@ -15,8 +15,7 @@ import info #아이디비밀번호 파일
 
 def setup_driver():
     # 웹드라이버 경로 설정
-    # driver_path = r"C:\Users\ADMIN\Desktop\chromedriver-win64\chromedriver-win64\chromedriver.exe"#노트북
-    driver_path = info.driver_path  # PC
+    driver_path = info.driver_path
     # Service 객체로 WebDriver 설정
     service = Service(executable_path=driver_path)
     #브라우저 닫힘방지 옵션
@@ -28,21 +27,17 @@ def setup_driver():
 
 def login(driver, user_id, password):
     driver.get("https://srtplay.com/user/idCheck")
-    # id_element = driver.find_element(By.CSS_SELECTOR, "#input-email")
-    # id_element.send_keys(user_id) 두줄짜리를 한줄로 요약
-    # 아디디 입력란에 입력
+    # 아이디 입력란에 입력
     driver.find_element(By.CSS_SELECTOR, "#input-email").send_keys(user_id)
-    # next_btn = driver.find_element(By.CSS_SELECTOR, "body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span")
-    # next_btn.click() 두줄짜리 코드 한줄로 요약
-    #다음버튼 클릭
+    # 다음버튼 클릭
     driver.find_element(By.CSS_SELECTOR,"body > div.outer-wrap > div > div > form > div > div.end-content > div > button > span").click()
     driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.form-type-wrap > div:nth-child(2) > span > span").click()
-    #비밀번호 입력란에 입력
+    # 비밀번호 입력란에 입력
     driver.find_element(By.CSS_SELECTOR, "#input-pw").send_keys(password)  # 실제 비밀번호 필드 CSS 선택자
     driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div.end-content > div > button").click()
 
 def booking_page(driver):
-    #팝업없을때를 위한 예외처리
+    # 팝업없을때를 위한 예외처리
     try:
         # WebDriverWait와 expected_conditions을 사용하여 요소가 로드될 때까지 대기하는 방식
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
@@ -94,7 +89,6 @@ def find_booking_elements(driver, deadline_time):
     find_flag = False
     # 요소 순차적으로 확인
     for train_schedule in train_schedule_elements:
-        # 버튼 클릭되면 flag=True가 되면서 for루프 종료
         if find_flag == True:
             break
         # 시간 확인 (start 클래스의 시간 추출)
@@ -111,7 +105,6 @@ def find_booking_elements(driver, deadline_time):
         buttons = train_schedule.find_elements(By.CSS_SELECTOR, "a.btn")
         # 버튼배열이 ['일반티켓버튼', '할인티켓버튼'] 이렇게 저장되므로 할인티켓을 먼저예매하기위해 reversed()사용
         for button in reversed(buttons):
-            # 비활성화된 버튼은 건너뛰기
             if "disabled" in button.get_attribute("class"):
                 continue
             # href의 속성값 받아오기
@@ -173,13 +166,12 @@ def handle_alert(driver):
         print("Alert 팝업이 닫혔습니다.")
         return True
     except Exception as e:
-        # alert() 팝업이 없으면 예외 발생, None 반환
         return False
 
 def main():
-    if ':' not in info.set_deadline_time:  # 만약 ':'이 없다면
-        if len(info.set_deadline_time) == 1:  # 한 자릿수 숫자인 경우
-            set_deadline_time = "0" + info.set_deadline_time + ":00"  # 앞에 0을 추가하고 :00을 붙임
+    if ':' not in info.set_deadline_time:
+        if len(info.set_deadline_time) == 1:
+            set_deadline_time = "0" + info.set_deadline_time + ":00"
         else:
             info.set_deadline_time += ":00"
     set_deadline_time = datetime.strptime(info.set_deadline_time, "%H:%M")
@@ -195,11 +187,10 @@ def main():
     # 10초 동안 팝업이 나타나는지 확인
     start_time = time.time()
     while time.time() - start_time < 10:
-        if handle_alert(driver):  # 팝업이 있으면 처리
+        if handle_alert(driver):
             # 팝업이 닫힌 후, https://srtplay.com/ticket/reservation URL로 돌아올 때까지 대기
             while driver.current_url != "https://srtplay.com/ticket/reservation":
-                time.sleep(1)  # 1초 대기 후 확인
-
+                time.sleep(1)
             # 팝업이 나왔으면 station_page부터 다시 진행
             station_page(driver, info.set_departure_station, info.set_arrival_station)
             date_page(driver, info.set_departure_date, info.set_departure_time)
@@ -212,8 +203,8 @@ def main():
 if __name__ == "__main__":
     main()
     #두번째 파일 실행
-    auth_code = get_kakao_auth_code()  # 두 번째 파일에서 함수 호출
+    auth_code = get_kakao_auth_code()
     if auth_code:
-        access_token = get_access_token(auth_code)  # 두 번째 파일에서 함수 호출
+        access_token = get_access_token(auth_code)
         if access_token:
             send_kakao_message(access_token, "예매가 완료되었습니다!")
