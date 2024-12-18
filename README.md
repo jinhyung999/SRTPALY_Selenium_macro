@@ -29,10 +29,10 @@ pip install selenium requests
 ```
 
 Please download the info.py from the repository and fill in the required values.
-To use the KakaoTalk message sending feature, please follow steps 1 to 4 in the guide from [최희연의 블로그의 글](https://choi-hee-yeon.tistory.com/163)
+To use the KakaoTalk message sending feature, please follow steps 1 to 4 in the guide from [[python] use kakao API, send kakaoTalk message to me](https://choi-hee-yeon.tistory.com/163)
 If you do not need the feature to send messages via KakaoTalk, you do not need to provide the kakao_id, kakao_pw, and rest_api_key values.  
 레포지터리에 있는 info.py를 다운받고 필요한 값들을 넣어주세요.  
-카카오톡 메세지 보내기 기능을 사용하려면 링크 [최희연의 블로그의 글](https://choi-hee-yeon.tistory.com/163) 에서 1. 부터 4.까지의 부분을 따라 세팅해주세요.  
+카카오톡 메세지 보내기 기능을 사용하려면 링크 [[python] 카카오톡 API를 사용하여, 나에게 카카오톡 메시지 보내기](https://choi-hee-yeon.tistory.com/163) 에서 1. 부터 4.까지의 부분을 따라 세팅해주세요.  
 카카오톡으로 메시지 보내기 기능이 필요하지 않으시면 kakao_id, kakao_pw, rest_api_key 값을 작성하지 않으셔도 됩니다.    
 
 If you have completed the setup, please run srtplay.py to start the booking process! Note: Please place info.py, kakao_send.py, and srtplay.py in the same folder.  
