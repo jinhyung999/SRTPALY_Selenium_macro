@@ -28,7 +28,7 @@ Chromedriver: Selenium에서 사용할 Chrome 웹드라이버를 다운로드하
 pip install selenium requests
 ```
 
-Please download the info.py from the repository and fill in the required values.
+Please download the info.py from the repository and fill in the required values.  
 To use the KakaoTalk message sending feature, please follow steps 1 to 4 in the guide from [[python] use kakao API, send kakaoTalk message to me](https://choi-hee-yeon.tistory.com/163)  
 If you do not need the feature to send messages via KakaoTalk, you do not need to provide the kakao_id, kakao_pw, and rest_api_key values.  
 레포지터리에 있는 info.py를 다운받고 필요한 값들을 넣어주세요.  
