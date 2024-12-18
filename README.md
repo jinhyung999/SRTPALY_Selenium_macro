@@ -17,7 +17,7 @@ For full license details, see the [LICENSE](LICENSE) file.
 
 # How To Run
 Python 3.x: Python must be installed. If it's not installed, please download and install it from the official Python website.  
-Chromedriver: You need to download and install the Chrome WebDriver for Selenium, matching your system's version. You can download it from the Chromedriver download page.  
+Chromedriver: You need to download and install the Chrome WebDriver for Selenium, matching your system's version. You can download it from the Chromedriver download page.    
 Install required libraries: Use the command below to install the necessary libraries.  
 
 Python 3.x: Python이 설치되어 있어야 합니다. 설치가 되어 있지 않다면 Python 공식 사이트에서 다운로드하고 설치해 주세요. 
@@ -29,7 +29,7 @@ pip install selenium requests
 ```
 
 Please download the info.py from the repository and fill in the required values.
-To use the KakaoTalk message sending feature, please follow steps 1 to 4 in the guide from [[python] use kakao API, send kakaoTalk message to me](https://choi-hee-yeon.tistory.com/163)
+To use the KakaoTalk message sending feature, please follow steps 1 to 4 in the guide from [[python] use kakao API, send kakaoTalk message to me](https://choi-hee-yeon.tistory.com/163)  
 If you do not need the feature to send messages via KakaoTalk, you do not need to provide the kakao_id, kakao_pw, and rest_api_key values.  
 레포지터리에 있는 info.py를 다운받고 필요한 값들을 넣어주세요.  
 카카오톡 메세지 보내기 기능을 사용하려면 링크 [[python] 카카오톡 API를 사용하여, 나에게 카카오톡 메시지 보내기](https://choi-hee-yeon.tistory.com/163) 에서 1. 부터 4.까지의 부분을 따라 세팅해주세요.  
